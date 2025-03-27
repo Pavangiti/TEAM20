@@ -77,14 +77,15 @@ def is_data_present():
 # Function to load dataset into the database (only if empty)
 def load_data_into_db():
     if not is_data_present():
-        if os.path.exists(DATASET_PATH):
-            df = pd.read_excel(DATASET_PATH)  # Load from the specified path
+        try:
+            df = pd.read_csv(DATASET_URL)  # Load directly from Google Sheets
             conn = create_connection(DB_FILE)
             df.to_sql("vaccination_data", conn, if_exists="replace", index=False)
             conn.close()
             print("✅ Data loaded into the database successfully!")
-        else:
-            print("❌ Error: File not found at the specified path!")
+        except Exception as e:
+            print(f"❌ Error loading dataset: {e}")
+
 
 # Initialize databases
 setup_user_database()
