@@ -12,7 +12,7 @@ st.set_page_config(page_title="Predictive Healthcare Analytics", layout="wide")
 # ----------------- DATABASE & FILE PATH SETUP -----------------
 DB_FILE = "vaccination_data.db"
 USER_DB = "users.db"
-DATASET_PATH = "https://github.com/Pavangiti/TEAM20/releases/download/v1.1.1/data2.xlsx"
+DATASET_PATH = "https://docs.google.com/spreadsheets/d/1hJEb7aMjrD-EfAoN9jdhwBK2m9o0U-mh/edit?usp=share_link&ouid=112368983009057196037&rtpof=true&sd=true"
 
 # Function to create database connection
 def create_connection(db_path):
