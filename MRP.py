@@ -14,8 +14,21 @@ st.set_page_config(page_title="Predictive Healthcare Analytics", layout="wide")
 # ----------------- DATABASE & FILE PATH SETUP -----------------
 DB_FILE = "vaccination_data.db"
 USER_DB = "users.db"
-DATASET_PATH = "https://docs.google.com/spreadsheets/d/1hJEb7aMjrD-EfAoN9jdhwBK2m9o0U-mh/edit?usp=share_link&ouid=112368983009057196037&rtpof=true&sd=true"
 
+# Google Sheet ID and Sheet Name
+sheet_id = "1hJEb7aMjrD-EfAoN9jdhwBK2m9o0U-mh"
+sheet_name = "not_vaccinated_analysis (3)"
+
+# Generate CSV export URL
+DATASET_URL = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+
+# Load the Google Sheet into a DataFrame
+try:
+    df = pd.read_csv(DATASET_URL)
+    st.success("Dataset loaded successfully from Google Sheets.")
+except Exception as e:
+    st.error(f"Error loading dataset: {e}")
+    df = pd.DataFrame()  # fallback to empty DataFrame
 # Function to create database connection
 def create_connection(db_path):
     return sqlite3.connect(db_path)
