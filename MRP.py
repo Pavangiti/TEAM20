@@ -3,11 +3,13 @@ import sqlite3
 import pandas as pd
 import plotly.express as px
 import hashlib
+import gdown
 import os
 from statsmodels.tsa.arima.model import ARIMA  # ARIMA Model for forecasting
 
 # ----------------- PAGE CONFIGURATION -----------------
 st.set_page_config(page_title="Predictive Healthcare Analytics", layout="wide")
+
 
 # ----------------- DATABASE & FILE PATH SETUP -----------------
 DB_FILE = "vaccination_data.db"
@@ -382,3 +384,7 @@ if 'Year' in df.columns:
     future_forecast = pd.DataFrame({"Year": list(range(forecast_df["Year"].max()+1, forecast_df["Year"].max()+6)), 
                                     "VACCINATED": model_fit.forecast(steps=5)})
     st.plotly_chart(px.line(pd.concat([forecast_df, future_forecast]), x="Year", y="VACCINATED", title="Future Vaccination Demand Prediction"))
+
+
+
+
