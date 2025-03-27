@@ -6,5 +6,6 @@ plotly
 numpy
 scipy
 geopy
+gdown
 
 
