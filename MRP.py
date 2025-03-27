@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.express as px
 import hashlib
 import gdown
+import urllib.parse
 import os
 from statsmodels.tsa.arima.model import ARIMA  # ARIMA Model for forecasting
 
