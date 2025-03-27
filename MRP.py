@@ -387,19 +387,103 @@ st.dataframe(summary_table)
 
 
 
+# ----------------- VACCINATION FORECAST (CODE1) -----------------
+st.write("### 🔮 Forecast of Vaccination Trends (Full Synthea Dataset)")
 
+import pandas as pd
+from statsmodels.tsa.arima.model import ARIMA
+import plotly.express as px
+import os
 
+# Full Synthea data path
+SYNTHETIC_DATA_PATH = "/Users/pavansappidi/Desktop/MRP/data2.xlsx"
 
+if os.path.exists(SYNTHETIC_DATA_PATH):
+    # Load only YEAR and VACCINATED columns to reduce memory
+    full_df = pd.read_excel(SYNTHETIC_DATA_PATH, sheet_name="not_vaccinated_analysis (3)", usecols=["YEAR", "VACCINATED"])
 
-# ----------------- PREDICTION USING ARIMA -----------------
-if 'Year' in df.columns:
-    forecast_df = filtered_df.groupby("Year")["VACCINATED"].sum().reset_index()
-    forecast_df["Year"] = forecast_df["Year"].astype(int)
-    model = ARIMA(forecast_df["VACCINATED"], order=(5,1,0))
+    # Clean and convert
+    full_df["VACCINATED"] = full_df["VACCINATED"].astype(str).str.lower().map({"true": 1, "false": 0})
+    vaccinated_full = full_df[full_df["VACCINATED"] == 1]
+
+    # Aggregate vaccinated count per year
+    yearly_vax = vaccinated_full.groupby("YEAR").size().reset_index(name="vaccinated_count")
+
+    # Fit ARIMA model
+    model = ARIMA(yearly_vax["vaccinated_count"], order=(1, 1, 1))
     model_fit = model.fit()
-    future_forecast = pd.DataFrame({"Year": list(range(forecast_df["Year"].max()+1, forecast_df["Year"].max()+6)), 
-                                    "VACCINATED": model_fit.forecast(steps=5)})
-    st.plotly_chart(px.line(pd.concat([forecast_df, future_forecast]), x="Year", y="VACCINATED", title="Future Vaccination Demand Prediction"))
+
+    # Forecast next 5 years
+    year_max = int(yearly_vax["YEAR"].max())
+    future_years = list(range(year_max + 1, year_max + 6))
+    forecast = model_fit.forecast(steps=5)
+
+    # Create forecast DataFrame
+    forecast_df = pd.DataFrame({
+        "YEAR": future_years,
+        "vaccinated_count": forecast
+    })
+
+    # Combine with historical data
+    combined_df = pd.concat([yearly_vax, forecast_df], ignore_index=True)
+
+    # Plot the result
+    fig = px.line(combined_df, x="YEAR", y="vaccinated_count",
+                  title="📈 Vaccination Forecast: Historical + 5-Year Prediction",
+                  markers=True)
+    st.plotly_chart(fig)
+    st.dataframe(combined_df)
+
+else:
+    st.warning("⚠️ Could not load full Synthea dataset for forecasting.")
+#---------------
+
+
+
+
+
+# ----------------- LOAD REAL-TIME VACCINATION DATASET -----------------
+REALTIME_DATASET_PATH = "/Users/pavansappidi/Desktop/MRP/d5f13b5b-c3c7-46ca-a8fc-ce4450a8b9cc.csv"
+
+import numpy as np  # in case not already imported
+
+if os.path.exists(REALTIME_DATASET_PATH):
+    realtime_df = pd.read_csv(REALTIME_DATASET_PATH)
+
+    # Compute real-time vaccination totals
+    real_fully_vaccinated = realtime_df["fully_vaccinated"].replace(np.nan, 0).sum()
+    real_partially_vaccinated = realtime_df["partially_vaccinated"].replace(np.nan, 0).sum()
+    real_total_vaccinated = real_fully_vaccinated + real_partially_vaccinated
+else:
+    st.warning("⚠️ Real-time vaccination dataset not found.")
+    real_total_vaccinated = real_fully_vaccinated = real_partially_vaccinated = 0
+
+# ----------------- SYNTHETIC VS REAL-TIME COMPARISON -----------------
+st.write("### 📊 Synthea vs Real-Time Vaccination Comparison")
+
+# Calculate proportions
+total_population_estimate = 13802  # Replace with city/county population if known
+synthea_proportion = (total_vaccinated / total_population_estimate) * 100
+realtime_proportion = (real_total_vaccinated / total_population_estimate) * 100
+
+col1, col2 = st.columns(2)
+with col1:
+    st.metric("✅ Synthea Vaccinated", f"{total_vaccinated}", f"{synthea_proportion:.2f}% of est. population")
+with col2:
+    st.metric("📡 Real-Time Vaccinated", f"{int(real_total_vaccinated)}", f"{realtime_proportion:.2f}% of est. population")
+
+# Optional bar chart comparison
+compare_vax_df = pd.DataFrame({
+    "Dataset": ["Synthea", "Real-Time"],
+    "Vaccinated": [total_vaccinated, real_total_vaccinated]
+})
+
+st.plotly_chart(
+    px.bar(compare_vax_df, x="Dataset", y="Vaccinated",
+           title="Vaccinated Individuals: Synthea vs Real-Time", color="Dataset", text_auto=True)
+)
+
+
 
 
 
