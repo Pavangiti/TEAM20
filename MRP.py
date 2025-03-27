@@ -18,9 +18,10 @@ USER_DB = "users.db"
 # Google Sheet ID and Sheet Name
 sheet_id = "1hJEb7aMjrD-EfAoN9jdhwBK2m9o0U-mh"
 sheet_name = "not_vaccinated_analysis (3)"
+encoded_sheet_name = urllib.parse.quote(sheet_name)
 
-# Generate CSV export URL
-DATASET_URL = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+# Build URL safely
+csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={encoded_sheet_name}"
 
 # Load the Google Sheet into a DataFrame
 try:
