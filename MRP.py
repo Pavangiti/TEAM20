@@ -22,7 +22,7 @@ sheet_name = "not_vaccinated_analysis (3)"
 encoded_sheet_name = urllib.parse.quote(sheet_name)
 
 # Build URL safely
-DATASET_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={encoded_sheet_name}"
+DATASET_URL = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={encoded_sheet_name}"
 
 # Load the Google Sheet into a DataFrame
 try:
